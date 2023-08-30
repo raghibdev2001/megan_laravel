@@ -3,34 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Role;
+use App\Models\Module;
 
-class RoleController extends Controller
+class ModuleController extends Controller
 {
-    public function getAllRoles()
-    {
-        $UserRoles = Role::orderBy('id','DESC')->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => '',
-            'data' => $UserRoles
-        ], 200);
-    }
-
-    public function addUserRole(Request $request)
+    public function addModule(Request $request)
     {
         $request->validate([
-            'roleName'=> 'required'
+            'name' => 'required|unique:modules'
         ]);
 
         $data = [
-            'name' => $request->roleName
+            'name' => $request->name,
+            'is_enabled' => 1
         ];
 
-        $role = Role::create($data);
-        
-        if($role)
+        $module = Module::create($data);
+
+        if($module)
         {
             return response()->json([
                 'status' => true,
@@ -46,6 +36,5 @@ class RoleController extends Controller
                 'data' => []
             ], 401);
         }
-        
     }
 }
