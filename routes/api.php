@@ -28,7 +28,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //End Role
 
     //Module crud
+    Route::get('/get_all_modules', [ModuleController::class, 'getAllModules']);
     Route::post('/add_module', [ModuleController::class, 'addModule']);
+    Route::post('/update_module_status', [ModuleController::class, 'updateModuleStatus']);
+    Route::post('/get_permission_wise_roles', [ModuleController::class, 'getPermissionWiseRoles']);
+
     //End Module
 });
 
