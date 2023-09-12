@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AdminController::class, 'index']);
 Route::post('/login_auth', [AdminController::class, 'loginAuth'])->name('login_auth');
-Route::get('/logout', [AdminController::class, 'logout'])->name('logout');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

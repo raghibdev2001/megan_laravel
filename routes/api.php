@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/add_module', [ModuleController::class, 'addModule']);
     Route::post('/update_module_status', [ModuleController::class, 'updateModuleStatus']);
     Route::post('/get_permission_wise_roles', [ModuleController::class, 'getPermissionWiseRoles']);
-
+    Route::post('/save_module_permission_role_wise', [ModuleController::class, 'saveModulePermissionRoleWise']);
     //End Module
 });
 

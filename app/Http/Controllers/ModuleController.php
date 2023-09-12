@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Module;
 use App\Models\Role;
+use App\Models\ModulePermission;
 
 
 class ModuleController extends Controller
@@ -87,15 +88,16 @@ class ModuleController extends Controller
     public function getPermissionWiseRoles(Request $request)
     {
         $moduleId = $request->id?? 0;
-        $ModuleDetails = Module::where('id',$moduleId)->get(['name']);
+        $ModuleDetails = Module::where('id',$moduleId)->get(['id','name']);
         
         $data = array("module_name" => "", "role_data" => []);
         if($ModuleDetails)
         {
             $data['module_name'] = $ModuleDetails[0]['name'];
+            $data['module_id'] = $ModuleDetails[0]['id'];
         }
 
-        $RoleData = Role::select(['id','name'])->get();
+        $RoleData = Role::select(['id as value','name as label'])->get();
         if($RoleData)
         {
             $data['role_data'] = $RoleData;
@@ -106,6 +108,79 @@ class ModuleController extends Controller
             'message' => '',
             'data' => $data
         ], 200);
+    }
+
+    public function saveModulePermissionRoleWise(Request $request)
+    {
+        $ModuleDetails = $request->moduleDetails;
+        $PermissionWiseRoles = $request->permissionWiseRoles;
+
+        $AssignPermissionToRole = [];
+        foreach($PermissionWiseRoles as $key => $PermissionRole)
+        {
+            foreach($PermissionRole as $Roles)
+            {
+                if( !isset($AssignPermissionToRole[$Roles['value']]) )
+                {
+                    $AssignPermissionToRole[$Roles['value']] = [
+                        'module_id' => $ModuleDetails['id'],
+                        'role_id'   => $Roles['value'],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'add' => 0,
+                        'update' => 0,
+                        'view' => 0,
+                        'delete' => 0,
+                    ];
+                }
+                
+                if($key == 'add')
+                {
+                    $AssignPermissionToRole[$Roles['value']]['add'] = 1;
+                }
+                if($key == 'update')
+                {
+                    $AssignPermissionToRole[$Roles['value']]['update'] = 1;
+                }
+                if($key == 'view')
+                {
+                    $AssignPermissionToRole[$Roles['value']]['view'] = 1;
+                }
+                if($key == 'delete')
+                {
+                    $AssignPermissionToRole[$Roles['value']]['delete'] = 1;
+                }
+            }
+        }
+
+        if(!$AssignPermissionToRole)
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sorry! permissions not found',
+                'data' => []
+            ], 401);
+        }
+
+        $data = array_values($AssignPermissionToRole);
+        
+        $result = ModulePermission::insert($data);
+        
+        if($result)
+        {
+            return response()->json([
+                'status' => true,
+                'message' => 'Permissions are added successfully',
+                'data' => []
+            ], 200);
+        }
+        else
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sorry! Failed to add permissions',
+                'data' => []
+            ], 401);
+        }
     }
 
 }

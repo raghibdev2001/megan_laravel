@@ -47,10 +47,4 @@ class AdminController extends Controller
         ], 401);
     }
 
-    public function logout()
-    {
-        Auth::logout();
-        return redirect("/");
-
-    }
 }
