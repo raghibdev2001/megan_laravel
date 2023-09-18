@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\GeneralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,11 +31,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //Module crud
     Route::get('/get_all_modules', [ModuleController::class, 'getAllModules']);
+    Route::get('/get_parent_modules', [ModuleController::class, 'getParentModules']);
     Route::post('/add_module', [ModuleController::class, 'addModule']);
     Route::post('/update_module_status', [ModuleController::class, 'updateModuleStatus']);
     Route::post('/get_permission_wise_roles', [ModuleController::class, 'getPermissionWiseRoles']);
     Route::post('/save_module_permission_role_wise', [ModuleController::class, 'saveModulePermissionRoleWise']);
     //End Module
+
+    //User crud
+    Route::get('/get_all_users', [UserController::class, 'getAllUsers']);
+    Route::post('/add_user', [UserController::class, 'addUser']);
+    Route::get('/get_user_by_id/{id}', [UserController::class, 'getUserById']);
+    Route::post('/update_user', [UserController::class, 'updateUser']);
+    //End User
+
+    //Module Permissions
+    Route::post('/all_modules_with_permission', [ModuleController::class, 'getAllModulesWithPermission']);
+    Route::post('/save_module_permissions', [ModuleController::class, 'saveModulePermissions']);
+
+    //End Module Permissions
+
+    Route::get('/get_roles', [GeneralController::class, 'getRoles']);
+
+    Route::post('/user_logout', [AdminController::class, 'UserLogout']);
+
 });
 
 Route::post('/login_auth', [AdminController::class, 'loginAuth'])->name('login_auth');

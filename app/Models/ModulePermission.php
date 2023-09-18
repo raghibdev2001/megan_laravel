@@ -10,4 +10,9 @@ class ModulePermission extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function Module()
+    {
+        return $this->belongsTo(Module::class);
+    }
 }

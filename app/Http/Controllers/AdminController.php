@@ -47,4 +47,14 @@ class AdminController extends Controller
         ], 401);
     }
 
+    public function UserLogout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Logout successful',
+            'data' => []
+        ], 200);
+    }
 }

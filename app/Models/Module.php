@@ -9,8 +9,11 @@ class Module extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'is_enabled',
-    ];
+    protected $guarded = [];
+
+    public function ModulePermissions()
+    {
+        return $this->hasOne(ModulePermission::class);
+    }
+
 }

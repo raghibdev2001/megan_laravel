@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Module;
 use App\Models\Role;
 use App\Models\ModulePermission;
+use Validator;
 
 
 class ModuleController extends Controller
@@ -22,14 +23,27 @@ class ModuleController extends Controller
         ], 200);
     }
 
+    public function getParentModules()
+    {
+        $Modules = Module::where('parent_id', '0')->orderBy('id','DESC')->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => $Modules
+        ], 200);
+    }
+
     public function addModule(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:modules'
+            'name' => 'required|unique:modules',
         ]);
 
         $data = [
             'name' => $request->name,
+            'path' => $request->path??"",
+            'parent_id' => $request->parent_id??'0',
             'is_enabled' => 1
         ];
 
@@ -183,4 +197,104 @@ class ModuleController extends Controller
         }
     }
 
+
+    public function getAllModulesWithPermission(Request $request)
+    {
+        $RoleId = $request->role_id;
+        
+        $Modules = Module::select('id','name')->get()->toArray();
+        $ModulePermissions = ModulePermission::select('id','module_id','add','update','view','delete')->where('role_id', $RoleId)->get()->toArray();
+         
+        $data = [];
+        foreach ($Modules as $key => $Module)
+        {
+            $data[$key] = [
+                'id' => $Module['id'],
+                'name' => $Module['name'],
+                'permission' => [
+                    'add'    => 0,
+                    'update' => 0,
+                    'view'   => 0,
+                    'delete' => 0,
+                ]
+            ];
+
+            foreach ($ModulePermissions as $Permission)
+            {
+                if($Module['id'] == $Permission['module_id'])
+                {
+                    $data[$key]['permission'] = [
+                        'add'    => $Permission['add'],
+                        'update' => $Permission['update'],
+                        'view'   => $Permission['view'],
+                        'delete' => $Permission['delete'],
+                    ];
+                }
+            }
+        }
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Permissions are added successfully',
+            'data' => $data
+        ], 200);
+        
+    }
+
+    public function saveModulePermissions(Request $request)
+    {
+        $validator = Validator::make($request->all(), [ 
+            'role_id' => 'required|not_in:0',
+            'module_permissions' => 'required',
+        ]);
+
+        if ($validator->fails()) { 
+            return response()->json([
+                'status' => false,
+                'message' => 'Sorry! failed to create user',
+                'data' => [],
+                'errors'=> $validator->errors()
+            ],401);  
+        }
+
+        $RoleId = $request->role_id;
+        $ModulePermissions = $request->module_permissions;
+
+        $data = [];
+        foreach ($ModulePermissions as $Permissions)
+        {
+            $data[] = [
+                'role_id'   => $RoleId,
+                'module_id' => $Permissions['module_id'],
+                'add'       => $Permissions['permission']['add'],
+                'update'    => $Permissions['permission']['update'],
+                'view'      => $Permissions['permission']['view'],
+                'delete'    => $Permissions['permission']['delete'],
+                'created_at' => date('Y-m-d H:i:s') 
+            ];
+        }
+
+        ModulePermission::where('role_id', $RoleId)->delete();
+
+        $result = ModulePermission::insert($data);
+        
+        if($result)
+        {
+            return response()->json([
+                'status' => true,
+                'message' => 'Permissions are added successfully',
+                'data' => [],
+                'errors'=> []
+            ], 200);
+        }
+        else
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sorry! Failed to add permissions',
+                'data' => [],
+                'errors'=> []
+            ], 401);
+        }
+    }
 }
