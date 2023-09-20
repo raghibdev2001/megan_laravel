@@ -18,9 +18,11 @@ return new class extends Migration
             $table->integer('price');
             $table->date('available_from');
             $table->date('available_to');
-            $table->unsignedInteger('vendor_id');
+            $table->string('latitude');
+            $table->string('longitude');
             $table->unsignedInteger('created_by');
-            $table->unsignedInteger('updated_by');
+            $table->unsignedInteger('updated_by')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

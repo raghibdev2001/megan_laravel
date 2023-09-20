@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\PlacesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    
     //role crud 
     Route::get('/get_all_roles', [RoleController::class, 'getAllRoles']);
     Route::post('/add_user_role', [RoleController::class, 'addUserRole']);
@@ -48,8 +50,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //Module Permissions
     Route::post('/all_modules_with_permission', [ModuleController::class, 'getAllModulesWithPermission']);
     Route::post('/save_module_permissions', [ModuleController::class, 'saveModulePermissions']);
-
     //End Module Permissions
+
+    //Places
+    Route::get('/get_all_places', [PlacesController::class, 'getAllPlaces']);
+    Route::post('/save_places', [PlacesController::class, 'savePlaces']);
+    Route::post('/delete_place', [PlacesController::class, 'deletePlace']);
+    //End Places
 
     Route::get('/get_roles', [GeneralController::class, 'getRoles']);
 
