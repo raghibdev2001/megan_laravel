@@ -141,13 +141,153 @@ class PlacesController extends Controller
         ]);  
     }
 
+
+    public function getPlaceById(Request $request)
+    {
+        $PlaceId = $request->id;
+        $GetImages = $request->get_images;
+        
+        $Result = Place::find($PlaceId);
+        $data = [];
+
+        if($Result)
+        {
+            $data = [
+                'id'=>$Result->id,
+                'place_title'=>$Result->place_title,
+                'price'=>$Result->price,
+                'available_from'=>$Result->available_from,
+                'available_to'=>$Result->available_to,
+                'latitude'=>$Result->latitude,
+                'longitude'=>$Result->longitude
+            ];
+
+            if($GetImages)
+            {
+                $data['title_image'] = $Result->title_image; 
+                $data['more_images'] = $Result->images; 
+            }
+            return response()->json([
+                'status' => true,
+                'message' => '',
+                'data' => $data,
+                'errors'=> []
+            ]);
+        }
+         
+        
+        return response()->json([
+            'status' => false,
+            'message' => '',
+            'data' => $data,
+            'errors'=> []
+        ]);
+    }
+
+    public function updatePlaces(Request $request)
+    {
+        $validator = Validator::make($request->all(), [ 
+            'place_title' => 'required',
+            'price' => 'required',
+            'available_from' => 'required',
+            'available_to' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+        if ($validator->fails()) { 
+            return response()->json([
+                'status' => false,
+                'message' => 'Sorry! failed to save place',
+                'data' => [],
+                'errors'=> $validator->errors()
+            ]);  
+        }
+
+
+        $placeData = [
+            'place_title'    => $request->place_title,
+            'price'          => $request->price,
+            'available_from' => $request->available_from,
+            'available_to'   => $request->available_to,
+            'latitude'       => $request->latitude,
+            'longitude'      => $request->longitude,
+            'updated_by'      => \Auth::id(),
+        ];  
+
+        // title image
+        if($request->has('image'))
+        {
+            $image = $request->file('image');
+
+            $fileName  = time().'_'.$image->getClientOriginalName();
+
+            $path = $image->storeAs('upload/places', $fileName, 'public');
+            
+            if(!$path)
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to upload image file',
+                    'data' => [$path],
+                    'errors'=> []
+                ]);  
+            }
+
+            $placeData['title_image'] = $fileName; 
+            
+        }
+        
+        //End title image
+        $Place = Place::find($request->id);
+        $Result = $Place->update($placeData);
+
+        if($Result)
+        {
+            //More Images
+            $MoreImages = [];
+            if($request->has('more_images'))
+            {
+                $more_image = $request->file('more_images');
+                
+                Image::where('imageable_id', $Place->id)->delete();
+
+                foreach($more_image as $key => $image)
+                {
+                    $fileName  = time().'_'.$image->getClientOriginalName();
+
+                    $MoreImages[] = $image->storeAs('upload/places', $fileName, 'public');
+                    
+                    $Place->images()->create([
+                        'image_name' => $fileName
+                    ]);	
+                }
+            }
+            //End More Images
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Success! Place updated successfully',
+                'data' => [],
+                'errors'=> []
+            ]);  
+        }
+        
+        return response()->json([
+            'status' => false,
+            'message' => 'Sorry! Failed to update place',
+            'data' => [],
+            'errors'=> []
+        ]);  
+    }
+
     public function deletePlace(Request $request)
     {
         $PlaceId = $request->id;
         
-        $result = Place::where('id', $PlaceId)->delete();
+        $Result = Place::where('id', $PlaceId)->delete();
 
-        if($result)
+        if($Result)
         {
             return response()->json([
                 'status' => true,
@@ -164,4 +304,6 @@ class PlacesController extends Controller
             'errors'=> []
         ]);  
     }
+
+    
 }
