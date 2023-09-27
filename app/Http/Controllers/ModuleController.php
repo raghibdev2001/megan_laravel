@@ -53,7 +53,7 @@ class ModuleController extends Controller
         {
             return response()->json([
                 'status' => true,
-                'message' => 'Role created successfully',
+                'message' => 'Module created successfully',
                 'data' => []
             ], 200);
         }

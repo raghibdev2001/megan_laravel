@@ -8,6 +8,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PlacesController;
+use App\Http\Controllers\WebsiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,3 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::post('/login_auth', [AdminController::class, 'loginAuth'])->name('login_auth');
+
+//Api's for website
+
+Route::post('/get_places', [WebsiteController::class, 'getPlaces']);

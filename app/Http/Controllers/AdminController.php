@@ -29,22 +29,23 @@ class AdminController extends Controller
 
             $data = array(
                 'token' => $user->createToken('access_token')->plainTextToken,
-                'user' => $user
+                'user' => $user,
+                'user_role' => $user->Roles[0]['name']
             );
 
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
                 'data' => $data
-            ], 200);
+            ]);
         }
         
 
         return response()->json([
             'status' => false,
-            'message' => 'Invalid credentials',
+            'message' => 'Invalid user credentials',
             'data' => []
-        ], 401);
+        ]);
     }
 
     public function UserLogout(Request $request)
@@ -55,6 +56,6 @@ class AdminController extends Controller
             'status' => true,
             'message' => 'Logout successful',
             'data' => []
-        ], 200);
+        ]);
     }
 }

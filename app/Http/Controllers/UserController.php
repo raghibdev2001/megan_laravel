@@ -17,7 +17,7 @@ class UserController extends Controller
             'status' => true,
             'message' => '',
             'data' => $Users
-        ], 200);
+        ]);
     }
 
     public function addUser(Request $request)
@@ -36,7 +36,7 @@ class UserController extends Controller
                 'message' => 'Sorry! failed to create user',
                 'data' => [],
                 'errors'=> $validator->errors()
-            ],401);  
+            ]);  
         }
 
         $data = [
@@ -59,7 +59,7 @@ class UserController extends Controller
                 'data' => [],
                 'errors'=> []
                 
-            ], 200);
+            ]);
         }
         else
         {
@@ -68,7 +68,7 @@ class UserController extends Controller
                 'message' => 'Sorry! failed to create user',
                 'data' => [],
                 'errors'=> ['error_message'=>"Sorry! failed to create user"]
-            ], 401);
+            ]);
         }
     }
 
@@ -89,7 +89,7 @@ class UserController extends Controller
             'data' => $data,
             'errors'=> []
             
-        ], 200);
+        ]);
     }
 
     public function updateUser(Request $request)
@@ -97,7 +97,6 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [ 
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$request->id,
-            'user_role' => 'required'
         ]);
 
         if ($validator->fails()) { 
@@ -106,7 +105,7 @@ class UserController extends Controller
                 'message' => 'Sorry! failed to create user',
                 'data' => [],
                 'errors'=> $validator->errors()
-            ],401);  
+            ]);  
         }
 
         $data = [
@@ -114,15 +113,19 @@ class UserController extends Controller
             'email' => $request->email,
         ];
 
+
         $User = User::find($request->id);
         $Result = $User->update($data);
 
         if($Result)
         {
-            RoleUser::where(['user_id'=>$request->id])->delete();
-
-            $RoleId = $request->user_role['value'];
-            $User->Roles()->attach($RoleId);
+            if($request->user_role)
+            {
+                RoleUser::where(['user_id'=>$request->id])->delete();
+                $RoleId = $request->user_role['value'];
+                $User->Roles()->attach($RoleId);
+            }
+            
 
             return response()->json([
                 'status' => true,
@@ -130,7 +133,7 @@ class UserController extends Controller
                 'data' => [],
                 'errors'=> []
                 
-            ], 200);
+            ]);
         }
         else
         {
@@ -139,7 +142,7 @@ class UserController extends Controller
                 'message' => 'Sorry! failed to update user',
                 'data' => [],
                 'errors'=> ['error_message'=>"Sorry! failed to update user"]
-            ], 401);
+            ]);
         }
     }
 }
