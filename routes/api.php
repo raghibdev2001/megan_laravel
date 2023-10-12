@@ -59,6 +59,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/get_place_by_id', [PlacesController::class, 'getPlaceById']);
     Route::post('/update_places', [PlacesController::class, 'updatePlaces']);
     Route::post('/delete_place', [PlacesController::class, 'deletePlace']);
+
+    Route::post('/get_amenities', [PlacesController::class, 'getAmenities']);
     //End Places
 
     Route::get('/get_roles', [GeneralController::class, 'getRoles']);

@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('places', function (Blueprint $table) {
             $table->id();
             $table->string('place_title');
+            $table->string('short_description');
+            $table->string('location');
             $table->string('title_image');
             $table->integer('price');
             $table->date('available_from');
             $table->date('available_to');
             $table->string('latitude');
             $table->string('longitude');
+            $table->text('about_place');
             $table->unsignedInteger('created_by');
             $table->unsignedInteger('updated_by')->nullable();
             $table->softDeletes();

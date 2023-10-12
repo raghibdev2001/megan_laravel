@@ -16,4 +16,9 @@ class Place extends Model
     {
         return $this->morphMany(Image::class, 'imageable');
     }
+
+    public function Amenities()
+    {
+        return $this->belongsToMany(Amenity::class)->withPivot('amenity_id');
+    }
 }

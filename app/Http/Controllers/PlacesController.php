@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Place;
 use App\Models\Image;
+use App\Models\Amenity;
 use Validator;
 
 class PlacesController extends Controller
@@ -27,8 +28,12 @@ class PlacesController extends Controller
 
     public function savePlaces(Request $request)
     {
+        
         $validator = Validator::make($request->all(), [ 
             'place_title' => 'required',
+            'short_description' => 'required',
+            'location' => 'required',
+            'about_place' => 'required',
             'price' => 'required',
             'available_from' => 'required',
             'available_to' => 'required',
@@ -48,6 +53,9 @@ class PlacesController extends Controller
 
         $placeData = [
             'place_title'    => $request->place_title,
+            'short_description' => $request->short_description,
+            'location'          => $request->location,
+            'about_place'       => $request->about_place,
             'price'          => $request->price,
             'available_from' => $request->available_from,
             'available_to'   => $request->available_to,
@@ -90,10 +98,23 @@ class PlacesController extends Controller
         }
         //End title image
 
-        $place = Place::create($placeData);
+        $Amenities =  json_decode($request->amenities, true);
+        $arrAmenity = [];
+        
+        foreach($Amenities as $Amenity)
+        {
+            array_push($arrAmenity, array('amenity_id'=>$Amenity['value']));
+        }
 
+        $place = Place::create($placeData);
+        
         if($place)
         {
+            if($arrAmenity)
+            {
+                $place->Amenities()->attach($arrAmenity);
+            }
+
             //More Images
             $MoreImages = [];
             if($request->has('more_images'))
@@ -155,11 +176,15 @@ class PlacesController extends Controller
             $data = [
                 'id'=>$Result->id,
                 'place_title'=>$Result->place_title,
+                'short_description'=>$Result->short_description,
+                'location'=>$Result->location,
+                'about_place'=>$Result->about_place,
                 'price'=>$Result->price,
                 'available_from'=>$Result->available_from,
                 'available_to'=>$Result->available_to,
                 'latitude'=>$Result->latitude,
-                'longitude'=>$Result->longitude
+                'longitude'=>$Result->longitude,
+                'amenities'=>[],
             ];
 
             if($GetImages)
@@ -167,6 +192,15 @@ class PlacesController extends Controller
                 $data['title_image'] = $Result->title_image; 
                 $data['more_images'] = $Result->images; 
             }
+
+            if($Result->Amenities)
+            {
+                foreach($Result->Amenities as $Amenity)
+                {
+                    $data['amenities'][] = array('value'=>$Amenity->id, 'label'=>$Amenity->amenity_name);
+                }
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => '',
@@ -188,6 +222,9 @@ class PlacesController extends Controller
     {
         $validator = Validator::make($request->all(), [ 
             'place_title' => 'required',
+            'short_description' => 'required',
+            'location' => 'required',
+            'about_place' => 'required',
             'price' => 'required',
             'available_from' => 'required',
             'available_to' => 'required',
@@ -204,17 +241,19 @@ class PlacesController extends Controller
             ]);  
         }
 
-
         $placeData = [
             'place_title'    => $request->place_title,
+            'short_description' => $request->short_description,
+            'location'          => $request->location,
+            'about_place'       => $request->about_place,
             'price'          => $request->price,
             'available_from' => $request->available_from,
             'available_to'   => $request->available_to,
             'latitude'       => $request->latitude,
             'longitude'      => $request->longitude,
             'updated_by'      => \Auth::id(),
-        ];  
-
+        ]; 
+         
         // title image
         if($request->has('image'))
         {
@@ -305,5 +344,17 @@ class PlacesController extends Controller
         ]);  
     }
 
+
+    public function getAmenities(Request $request)
+    {
+        $Amenities = Amenity::select('id as value', 'amenity_name as label')->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => '',
+            'data' => $Amenities,
+            'errors'=> []
+        ]); 
+    }
     
 }
