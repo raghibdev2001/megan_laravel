@@ -42,7 +42,6 @@ class ModuleController extends Controller
 
         $data = [
             'name' => $request->name,
-            'path' => $request->path??"",
             'parent_id' => $request->parent_id??'0',
             'is_enabled' => 1
         ];

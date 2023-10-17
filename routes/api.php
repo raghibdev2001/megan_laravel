@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PlacesController;
 use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/all_modules_with_permission', [ModuleController::class, 'getAllModulesWithPermission']);
     Route::post('/save_module_permissions', [ModuleController::class, 'saveModulePermissions']);
     //End Module Permissions
+    
+    //Categories
+    Route::get('/get_all_categories', [CategoryController::class, 'getAllCategories']);
+    Route::post('/save_category', [CategoryController::class, 'saveCategory']);
+    Route::get('/get_category_by_id/{id}', [CategoryController::class, 'getCategoryById']);
+    Route::get('/delete_category/{id}', [CategoryController::class, 'deleteCategory']);
+    Route::post('/update_category', [CategoryController::class, 'updateCategory']);
+    //End Categories
 
     //Places
     Route::get('/get_all_places', [PlacesController::class, 'getAllPlaces']);
